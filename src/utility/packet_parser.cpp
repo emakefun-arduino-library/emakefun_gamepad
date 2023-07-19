@@ -18,8 +18,8 @@ uint16_t Checksum(const uint8_t* data, const uint8_t length) {
 PacketParser::PacketParser() : ring_buffer_(BUFFER_CAPACITY) {
 }
 
-void PacketParser::AppendData(const uint8_t* data, const uint8_t length) {
-  ring_buffer_.Write(data, length);
+size_t PacketParser::AppendData(const uint8_t* data, const uint8_t length) {
+  return ring_buffer_.Write(data, length);
 }
 
 PacketParser::Packet* PacketParser::ReadPacket() {

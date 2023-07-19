@@ -7,9 +7,9 @@
 namespace {
 enum Pin : uint8_t {
   kPinButtonJoystick = A0,
-  // kPinButtonLeft = 7,
-  kPinButtonLeft = 6,
-  kPinButtonRight = 6,
+  // kPinButtonL = 7,
+  kPinButtonL = 6,
+  kPinButtonR = 6,
   // kPinButtonSelect = 8,
   kPinButtonSelect = 6,
   kPinButtonMode = A3,
@@ -20,12 +20,16 @@ enum Pin : uint8_t {
   kPinRockerCoordinateX = A6,
   kPinRockerCoordinateY = A7,
 };
-}
+
+constexpr uint8_t kMinUpdateInterval = 500;
+constexpr uint8_t kMinJoystickCoordinateDiff = 10;
+constexpr uint8_t kMinGravityAccelerationDiff = 10;
+}  // namespace
 
 WirelessHandleController::WirelessHandleController()
     : buttons_({AgileButton(kPinButtonJoystick),
-                AgileButton(kPinButtonLeft),
-                AgileButton(kPinButtonRight),
+                AgileButton(kPinButtonL),
+                AgileButton(kPinButtonR),
                 AgileButton(kPinButtonSelect),
                 AgileButton(kPinButtonMode),
                 AgileButton(kPinButtonWhite),
@@ -37,8 +41,7 @@ WirelessHandleController::WirelessHandleController()
   }
 }
 
-WirelessHandleController::~WirelessHandleController() {
-}
+WirelessHandleController::~WirelessHandleController() = default;
 
 bool WirelessHandleController::Setup() {
   auto ret = mpu6050_.Setup();
@@ -51,83 +54,59 @@ bool WirelessHandleController::Setup() {
   return true;
 }
 
-void WirelessHandleController::SetMessageHandler(const OnMessage& on_message, void* user_parameter) {
-  on_message_ = on_message;
-  user_parameter_ = user_parameter;
-}
-
-void WirelessHandleController::SendMessage(const Message& message) {
-  if (on_message_ != nullptr) {
-    on_message_(message);
-  }
-}
-
 void WirelessHandleController::Tick() {
+  WirelessHandle::Tick();
   const auto now = millis();
   for (const auto& button : buttons_) {
     button.Tick();
   }
 
-  if (mpu6050_.UpdateMotionInfo()) {
-    const auto acceleration = mpu6050_.GetAcceleration();
-    constexpr int16_t acceleration_diff_threshold = 10;
-    if (abs(acceleration.x - acceleration_.x) > acceleration_diff_threshold ||
-        abs(acceleration.y - acceleration_.y) > acceleration_diff_threshold ||
-        abs(acceleration.z - acceleration_.z) > acceleration_diff_threshold) {
-      acceleration_ = acceleration;
-      last_update_acceleration_time_ = now;
-      // LOG(INFO) << "acceleration, x: " << acceleration.x << ", y: " << acceleration.y << ", z: " << acceleration.z;
-      SendMessage(GravityAccelerationChangeMessage{
-          {kGravityAccelerationChange, user_parameter_}, acceleration.x, acceleration.y, acceleration.z});
-    }
+  if (button_state_ != last_button_state_ || last_update_button_state_time_ + kMinUpdateInterval < now) {
+    last_update_button_state_time_ = now;
+    OnUpdateButtonState();
   }
 
-  const int16_t joystick_coordinate_x = analogRead(kPinRockerCoordinateX);
-  const int16_t joystick_coordinate_y = analogRead(kPinRockerCoordinateY);
-  constexpr int16_t coordinate_diff_threshold = 10;
-  if (abs(joystick_coordinate_x - joystick_coordinate_x_) > coordinate_diff_threshold ||
-      abs(joystick_coordinate_y - joystick_coordinate_y_) > coordinate_diff_threshold) {
-    joystick_coordinate_x_ = joystick_coordinate_x;
-    joystick_coordinate_y_ = joystick_coordinate_y;
+  JoystickCoordinate joystick_coordinate{
+      .x = analogRead(kPinRockerCoordinateX),
+      .y = analogRead(kPinRockerCoordinateY),
+  };
+
+  if (abs(joystick_coordinate.x - joystick_coordinate_.x) > kMinJoystickCoordinateDiff ||
+      abs(joystick_coordinate.y - joystick_coordinate_.y) > kMinJoystickCoordinateDiff ||
+      last_update_joystick_coordinate_time_ + kMinUpdateInterval < now) {
     last_update_joystick_coordinate_time_ = now;
-    // LOG(INFO) << "joystick coordinate x: " << joystick_coordinate_x << ", y: " << joystick_coordinate_y;
-    SendMessage(JoystickCoordinateChangeMessage{
-        {kJoystickCoordinateChange, user_parameter_}, joystick_coordinate_x, joystick_coordinate_y});
+    joystick_coordinate_ = joystick_coordinate;
+    OnUpdateJoystickCoordinate();
+  }
+
+  if (mpu6050_.UpdateMotionInfo()) {
+    const auto acceleration = mpu6050_.GetAcceleration();
+    if (abs(gravity_acceleration_.x - acceleration.x) > kMinGravityAccelerationDiff ||
+        abs(gravity_acceleration_.y - acceleration.y) > kMinGravityAccelerationDiff ||
+        abs(gravity_acceleration_.z - acceleration.z) > kMinGravityAccelerationDiff ||
+        last_update_gravity_acceleration_time_ + kMinUpdateInterval < now) {
+      last_update_gravity_acceleration_time_ = now;
+      gravity_acceleration_.x = acceleration.x;
+      gravity_acceleration_.y = acceleration.y;
+      gravity_acceleration_.z = acceleration.z;
+      OnUpdateGravityAcceleration();
+    }
   }
 }
 
 void WirelessHandleController::OnButtonEvent(const AgileButton::Event& event) {
   const uint8_t button_type = reinterpret_cast<uint8_t>(event.user_parameter);
-
   switch (event.event_type) {
     case AgileButton::kButtonDown: {
-      SendMessage(ButtonEventMessage{{kButtonDown, user_parameter_}, button_type});
+      // SendMessage(ButtonEventMessage{{kButtonDown, user_parameter_}, button_type});
       // LOG(INFO) << "ButtonDown: " << button_type;
+      button_state_ |= static_cast<uint16_t>(1) << button_type;
       break;
     }
     case AgileButton::kButtonUp: {
-      SendMessage(ButtonEventMessage{{kButtonUp, user_parameter_}, button_type});
+      // SendMessage(ButtonEventMessage{{kButtonUp, user_parameter_}, button_type});
+      button_state_ &= ~(static_cast<uint16_t>(1) << button_type);
       // LOG(INFO) << "ButtonUp: " << button_type;
-      break;
-    }
-    case AgileButton::kButtonClick: {
-      SendMessage(ButtonClickMessage{{{kButtonClick, user_parameter_}, button_type}, GetButtonClickCount(event)});
-      // LOG(INFO) << "ButtonClick: " << button_type << ", click count: " << click_count;
-      break;
-    }
-    case AgileButton::kButtonLongPressBegin: {
-      SendMessage(ButtonEventMessage{{kButtonLongPressBegin, user_parameter_}, button_type});
-      // LOG(INFO) << "ButtonLongPressBegin: " << button_type;
-      break;
-    }
-    case AgileButton::kButtonDuringLongPress: {
-      SendMessage(ButtonEventMessage{{kButtonDuringLongPress, user_parameter_}, button_type});
-      // LOG(INFO) << "kButtonDuringLongPress: " << button_type;
-      break;
-    }
-    case AgileButton::kButtonLongPressEnd: {
-      SendMessage(ButtonEventMessage{{kButtonLongPressEnd, user_parameter_}, button_type});
-      // LOG(INFO) << "kButtonDuringLongPress: " << button_type;
       break;
     }
     default: {

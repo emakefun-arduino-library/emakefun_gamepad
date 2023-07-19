@@ -1,14 +1,13 @@
 #include <Arduino.h>
 
 #include "log.h"
-#include "wireless_handle_controller_rf24.h"
+#include "wireless_handle_controller.h"
 
-WirelessHandleControllerRf24 wireless_handle_controller;
+WirelessHandleController wireless_handle_controller;
 
 void setup() {
   Serial.begin(115200);
   wireless_handle_controller.Setup();
-  wireless_handle_controller.SetupRf24(115, 5, 0x0011000011LL);
   LOG(INFO);
 }
 

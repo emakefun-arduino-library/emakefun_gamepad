@@ -13,7 +13,7 @@ class PacketParser {
 
   PacketParser();
 
-  void AppendData(const uint8_t* data, const uint8_t length);
+  size_t AppendData(const uint8_t* data, const uint8_t length);
 
   Packet* ReadPacket();
 

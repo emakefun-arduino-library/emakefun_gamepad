@@ -2,12 +2,11 @@
 
 #include <stdint.h>
 
+#include "RF24.h"
 #include "utility/packet_parser.h"
-#include "wireless_handle_endpoint.h"
+#include "wireless_handle.h"
 
-class RF24;
-
-class WirelessHandleEndpointRf24 : public WirelessHandleEndpoint {
+class WirelessHandleEndpointRf24 : public WirelessHandle {
  public:
   WirelessHandleEndpointRf24();
 
@@ -15,22 +14,13 @@ class WirelessHandleEndpointRf24 : public WirelessHandleEndpoint {
 
   bool SetupRf24(const uint8_t channel, const uint8_t address_width, const uint64_t address);
 
-  void Tick();
-
-  void SetMessageHandler(const OnMessage& on_message, void* const user_parameter) override {
-    on_message_ = on_message;
-    user_parameter_ = user_parameter;
-  }
+  void Tick() override;
 
  private:
+  void HandlePacket();
+
   void HandlePacket(PacketParser::Packet* packet);
 
-  void SendMessage(const Message& message);
-
-  RF24* rf24_ = nullptr;
+  RF24 rf24_;
   PacketParser packet_parser_;
-  OnMessage* on_message_ = nullptr;
-  void* user_parameter_ = nullptr;
 };
-
-namespace {}  // namespace

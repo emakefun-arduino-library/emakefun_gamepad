@@ -2,8 +2,6 @@
 
 #include <string.h>
 
-#include "log.h"
-
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 RingBuffer::RingBuffer(const size_t size) : capacity_(size), buffer_(new uint8_t[size]) {

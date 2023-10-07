@@ -1,7 +1,5 @@
 #include "gamepad_rf24_publisher.h"
 
-#include "log.h"
-
 namespace emakefun {
 
 GamepadRf24Publisher::GamepadRf24Publisher() : rf24_(7, 8) {

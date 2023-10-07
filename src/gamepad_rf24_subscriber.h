@@ -10,9 +10,9 @@ class GamepadRf24Subscriber : public GamepadSubscriber {
  public:
   GamepadRf24Subscriber();
   bool Initialize(const uint8_t channel, const uint8_t address_width, const uint64_t address);
-  void Tick();
 
  private:
+  void OnHandleData(void (GamepadSubscriber::*handle_data)(const uint8_t* data, const uint32_t length)) override;
   RF24 rf24_;
 };
 }  // namespace emakefun

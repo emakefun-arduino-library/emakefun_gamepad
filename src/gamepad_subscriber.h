@@ -8,11 +8,13 @@ class GamepadSubscriber {
  public:
   virtual ~GamepadSubscriber() = default;
   void AttachModel(GamepadModel* const model);
+  virtual void Tick();
 
  protected:
-  void Process(const uint8_t* data, const uint32_t length);
+  virtual void OnHandleData(void (GamepadSubscriber::*handle_data)(const uint8_t* data, const uint32_t length)) = 0;
 
  private:
+  void HandleData(const uint8_t* data, const uint32_t length);
   void HandlePacket();
   void HandlePacket(PacketParser::Packet* packet);
 

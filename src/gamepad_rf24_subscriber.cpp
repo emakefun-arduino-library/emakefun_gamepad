@@ -1,7 +1,5 @@
 #include "gamepad_rf24_subscriber.h"
 
-#include "log.h"
-
 namespace emakefun {
 GamepadRf24Subscriber::GamepadRf24Subscriber() : rf24_(7, 8) {
 }
@@ -18,7 +16,7 @@ bool GamepadRf24Subscriber::Initialize(const uint8_t channel, const uint8_t addr
   return true;
 }
 
-void GamepadRf24Subscriber::Tick() {
+void GamepadRf24Subscriber::OnHandleData(void (GamepadSubscriber::*handle_data)(const uint8_t* data, const uint32_t length)) {
   while (rf24_.available()) {
     auto size = rf24_.getDynamicPayloadSize();
     if (size <= 0) {
@@ -26,7 +24,7 @@ void GamepadRf24Subscriber::Tick() {
     }
     uint8_t* buffer = new uint8_t[size];
     rf24_.read(buffer, size);
-    Process(buffer, size);
+    (this->*handle_data)(buffer, size);
     // LOG(INFO) << "size: " << size;
     // for (uint8_t i = 0; i < size; i++) {
     //   LOG(INFO) << Log::Hex << Log::ShowBase << Log::SetWidth(4) << Log::SetFill('0') << Log::Internal << buffer[i];

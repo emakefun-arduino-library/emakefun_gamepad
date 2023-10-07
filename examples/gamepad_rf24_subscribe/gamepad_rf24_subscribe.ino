@@ -2,50 +2,59 @@
 
 #include "gamepad.h"
 #include "gamepad_rf24_subscriber.h"
-#include "log.h"
 
 emakefun::GamepadRf24Subscriber g_gamepad_subscriber;
 emakefun::GamepadModel g_gamepad_model;
 
 void setup() {
   Serial.begin(115200);
-  LOG(INFO);
   g_gamepad_subscriber.Initialize(115, 5, 0x0011000011LL);
   g_gamepad_subscriber.AttachModel(&g_gamepad_model);
+  Serial.println("setup done");
 }
 
 void loop() {
   g_gamepad_subscriber.Tick();
   if (g_gamepad_model.NewButtonState()) {
-    LOG(INFO) << "new button state";
+    Serial.println(F("new button state"));
   }
 
   for (uint8_t button_type = emakefun::GamepadModel::kButtonJoystick; button_type < emakefun::GamepadModel::kButtonMax;
        button_type++) {
     if (g_gamepad_model.NewButtonState(button_type)) {
-      LOG(INFO) << "new button state: " << button_type;
+      Serial.print(F("new button state:"));
+      Serial.println(button_type);
     }
 
     if (g_gamepad_model.ButtonPressed(button_type)) {
-      LOG(INFO) << "button pressed: " << button_type;
+      Serial.print(F("button pressed: "));
+      Serial.println(button_type);
     }
 
     if (g_gamepad_model.ButtonReleased(button_type)) {
-      LOG(INFO) << "button released: " << button_type;
+      Serial.print(F("button released: "));
+      Serial.println(button_type);
     }
 
     if (g_gamepad_model.GetButtonState(button_type)) {
-      LOG(INFO) << "button is being held: " << button_type;
+      Serial.print(F("button is being held: "));
+      Serial.println(button_type);
     }
   }
 
   if (g_gamepad_model.NewJoystickCoordinate()) {
-    LOG(INFO) << "joystick coordinate: " << g_gamepad_model.GetJoystickCoordinate().x << ", "
-              << g_gamepad_model.GetJoystickCoordinate().y;
+    Serial.print(F("joystick coordinate: "));
+    Serial.print(g_gamepad_model.GetJoystickCoordinate().x);
+    Serial.print(F(", "));
+    Serial.println(g_gamepad_model.GetJoystickCoordinate().y);
   }
 
   if (g_gamepad_model.NewGravityAcceleration()) {
-    LOG(INFO) << "gravity acceleration: " << g_gamepad_model.GetGravityAcceleration().x << ", "
-              << g_gamepad_model.GetGravityAcceleration().y << ", " << g_gamepad_model.GetGravityAcceleration().z;
+    Serial.print(F("gravity acceleration: "));
+    Serial.print(g_gamepad_model.GetGravityAcceleration().x);
+    Serial.print(F(", "));
+    Serial.print(g_gamepad_model.GetGravityAcceleration().y);
+    Serial.print(F(", "));
+    Serial.println(g_gamepad_model.GetGravityAcceleration().z);
   }
 }

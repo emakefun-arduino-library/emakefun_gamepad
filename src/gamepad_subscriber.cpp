@@ -1,23 +1,24 @@
 #include "gamepad_subscriber.h"
 
 #include "gamepad_protocol.h"
-#include "log.h"
 
 namespace emakefun {
 void GamepadSubscriber::AttachModel(GamepadModel* const model) {
   model_ = model;
 }
 
-void GamepadSubscriber::Process(const uint8_t* data, const uint32_t length) {
+void GamepadSubscriber::Tick() {
   if (model_ != nullptr) {
     model_->Tick();
   }
-
-  if (length != packet_parser_.AppendData(data, length)) {
-    LOG(ERROR) << "buffer is full and drop " << length << " bytes";
-  }
-
+  OnHandleData(&HandleData);
   HandlePacket();
+}
+
+void GamepadSubscriber::HandleData(const uint8_t* data, const uint32_t length) {
+  if (length != packet_parser_.AppendData(data, length)) {
+    // LOG(ERROR) << "buffer is full and drop " << length << " bytes";
+  }
 }
 
 void GamepadSubscriber::HandlePacket() {

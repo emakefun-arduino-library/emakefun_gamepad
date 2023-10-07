@@ -1,4 +1,4 @@
-#include "gamepad_rf24_subscriber.h"
+#include "gamepad_subscriber_rf24.h"
 
 namespace emakefun {
 GamepadRf24Subscriber::GamepadRf24Subscriber() : rf24_(7, 8) {

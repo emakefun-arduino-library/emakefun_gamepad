@@ -1,4 +1,4 @@
-#include "gamepad_rf24_publisher.h"
+#include "gamepad_publisher_rf24.h"
 
 namespace emakefun {
 

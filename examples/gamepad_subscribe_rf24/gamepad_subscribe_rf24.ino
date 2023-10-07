@@ -1,24 +1,20 @@
 #include <Arduino.h>
 
 #include "gamepad.h"
-#include "gamepad_rf24_publisher.h"
+#include "gamepad_subscriber_rf24.h"
 
-emakefun::Gamepad g_gamepad;
+emakefun::GamepadRf24Subscriber g_gamepad_subscriber;
 emakefun::GamepadModel g_gamepad_model;
-emakefun::GamepadRf24Publisher g_gamepad_publisher;
 
 void setup() {
   Serial.begin(115200);
-  g_gamepad.Initialize();
-  g_gamepad.EnableGyroscope(false);
-  g_gamepad_publisher.Initialize(115, 5, 0x0011000011LL);
-  g_gamepad.AttachModel(&g_gamepad_model);
-  g_gamepad_model.AddObserver(&g_gamepad_publisher);
+  g_gamepad_subscriber.Initialize(115, 5, 0x0011000011LL);
+  g_gamepad_subscriber.AttachModel(&g_gamepad_model);
   Serial.println("setup done");
 }
 
 void loop() {
-  g_gamepad.Tick();
+  g_gamepad_subscriber.Tick();
   if (g_gamepad_model.NewButtonState()) {
     Serial.println(F("new button state"));
   }

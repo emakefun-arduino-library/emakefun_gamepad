@@ -5,13 +5,18 @@
 
 emakefun::Gamepad g_gamepad;
 emakefun::GamepadModel g_gamepad_model;
-emakefun::GamepadRf24Publisher g_gamepad_publisher;
+emakefun::GamepadPublisherRf24 g_gamepad_publisher;
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("gamepad initialize");
   g_gamepad.Initialize();
+  Serial.println("gamepad initialize done");
   g_gamepad.EnableGyroscope(false);
-  g_gamepad_publisher.Initialize(115, 5, 0x0011000011LL);
+
+  Serial.println("gamepad publisher initialize");
+  g_gamepad_publisher.Initialize(7, 8, 115, 5, 0x0011000011LL);
+  Serial.println("gamepad publisher initialize done");
   g_gamepad.AttachModel(&g_gamepad_model);
   g_gamepad_model.AddObserver(&g_gamepad_publisher);
   Serial.println("setup done");

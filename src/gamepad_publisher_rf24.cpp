@@ -2,11 +2,11 @@
 
 namespace emakefun {
 
-GamepadRf24Publisher::GamepadRf24Publisher() : rf24_(7, 8) {
-}
+GamepadPublisherRf24::GamepadPublisherRf24() = default;
 
-bool GamepadRf24Publisher::Initialize(uint8_t channel, uint8_t address_width, uint64_t address) {
-  rf24_.begin();
+bool GamepadPublisherRf24::Initialize(
+    const uint8_t ce_pin, const uint8_t cs_pin, uint8_t channel, uint8_t address_width, uint64_t address) {
+  rf24_.begin(ce_pin, cs_pin);
   rf24_.setAddressWidth(address_width);
   rf24_.openWritingPipe(address);
   rf24_.setChannel(channel);
@@ -17,7 +17,7 @@ bool GamepadRf24Publisher::Initialize(uint8_t channel, uint8_t address_width, ui
   return true;
 }
 
-void GamepadRf24Publisher::OnPacket(const uint8_t* packet, uint8_t length) {
+void GamepadPublisherRf24::OnPacket(const uint8_t* packet, uint8_t length) {
   rf24_.write(packet, length);
 }
 }  // namespace emakefun

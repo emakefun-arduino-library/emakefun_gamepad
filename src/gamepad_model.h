@@ -106,35 +106,29 @@ class GamepadModel {
 
   void OnButtonState(const uint16_t button_state) {
     button_state_ = button_state;
-    if (NewButtonState()) {
-      for (auto observer : observers_) {
-        observer->OnButtonState(button_state);
-      }
+    for (auto observer : observers_) {
+      observer->OnButtonState(button_state);
     }
   }
 
   void OnJoystickCoordinate(const JoystickCoordinate& joystick_coordinate) {
     joystick_coordinate_ = joystick_coordinate;
-    if (NewJoystickCoordinate()) {
-      for (auto observer : observers_) {
-        observer->OnJoystickCoordinate(joystick_coordinate);
-      }
+    for (auto observer : observers_) {
+      observer->OnJoystickCoordinate(joystick_coordinate);
     }
   }
 
   void OnGravityAcceleration(const GravityAcceleration& gravity_acceleration) {
     gravity_acceleration_ = gravity_acceleration;
-    if (NewGravityAcceleration()) {
-      for (auto observer : observers_) {
-        observer->OnGravityAcceleration(gravity_acceleration);
-      }
+    for (auto observer : observers_) {
+      observer->OnGravityAcceleration(gravity_acceleration);
     }
   }
 
  private:
   uint16_t button_state_ = 0;
   uint16_t last_button_state_ = 0;
-  JoystickCoordinate joystick_coordinate_{0};
+  JoystickCoordinate joystick_coordinate_{127, 127};
   JoystickCoordinate last_joystick_coordinate_{0};
   GravityAcceleration gravity_acceleration_{0};
   GravityAcceleration last_gravity_acceleration_{0};

@@ -12,11 +12,13 @@ constexpr uint8_t kMinGravityAccelerationDiff = 50;
 enum Pin : uint8_t {
   kPinButtonJoystick = A0,
   kPinButtonL = A1,
+  // kPinButtonL = 6,
   kPinButtonR = 6,
   kPinButtonSelect = 10,
   kPinButtonMode = A3,
   kPinButtonA = 3,
   kPinButtonB = 9,
+  // kPinButtonB = 2,
   kPinButtonC = 5,
   kPinButtonD = 4,
   kPinRockerCoordinateX = A6,
@@ -67,7 +69,8 @@ void Gamepad::Tick() {
   }
 
   if (model_ != nullptr) {
-    if (model_->ButtonState() != button_state || now - last_update_button_state_time_ > 500) {
+    if (model_->ButtonState() != button_state || last_update_button_state_time_ == 0 ||
+        now - last_update_button_state_time_ > 500) {
       model_->OnButtonState(button_state);
       last_update_button_state_time_ = now;
     }
@@ -77,7 +80,7 @@ void Gamepad::Tick() {
 
     if (Diff(model_->GetJoystickCoordinate().x, joystick_coordinate.x) > kMinJoystickCoordinateDiff ||
         Diff(model_->GetJoystickCoordinate().y, joystick_coordinate.y) > kMinJoystickCoordinateDiff ||
-        now - last_update_joystick_coordinate_time_ > 500) {
+        last_update_joystick_coordinate_time_ == 0 || now - last_update_joystick_coordinate_time_ > 500) {
       model_->OnJoystickCoordinate(joystick_coordinate);
       last_update_joystick_coordinate_time_ = now;
     }
@@ -87,7 +90,7 @@ void Gamepad::Tick() {
       if (Diff(model_->GetGravityAcceleration().x, acceleration.x) > kMinGravityAccelerationDiff ||
           Diff(model_->GetGravityAcceleration().y, acceleration.y) > kMinGravityAccelerationDiff ||
           Diff(model_->GetGravityAcceleration().z, acceleration.z) > kMinGravityAccelerationDiff ||
-          now - last_update_gravity_acceleration_time_ > 500) {
+          last_update_gravity_acceleration_time_ == 0 || now - last_update_gravity_acceleration_time_ > 500) {
         model_->OnGravityAcceleration({acceleration.x, acceleration.y, acceleration.z});
         last_update_gravity_acceleration_time_ = now;
       }

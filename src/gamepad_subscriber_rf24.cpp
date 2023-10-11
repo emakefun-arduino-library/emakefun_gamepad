@@ -1,11 +1,11 @@
 #include "gamepad_subscriber_rf24.h"
 
 namespace emakefun {
-GamepadRf24Subscriber::GamepadRf24Subscriber() : rf24_(7, 8) {
-}
+GamepadSubscriberRf24::GamepadSubscriberRf24() = default;
 
-bool GamepadRf24Subscriber::Initialize(const uint8_t channel, const uint8_t address_width, const uint64_t address) {
-  rf24_.begin();
+bool GamepadSubscriberRf24::Initialize(
+    const uint8_t ce_pin, const uint8_t cs_pin, const uint8_t channel, const uint8_t address_width, const uint64_t address) {
+  rf24_.begin(ce_pin, cs_pin);
   rf24_.setAddressWidth(address_width);
   rf24_.openReadingPipe(0, address);
   rf24_.setChannel(channel);
@@ -16,7 +16,7 @@ bool GamepadRf24Subscriber::Initialize(const uint8_t channel, const uint8_t addr
   return true;
 }
 
-void GamepadRf24Subscriber::OnHandleData(void (GamepadSubscriber::*handle_data)(const uint8_t* data, const uint32_t length)) {
+void GamepadSubscriberRf24::OnHandleData(void (GamepadSubscriber::*handle_data)(const uint8_t* data, const uint32_t length)) {
   while (rf24_.available()) {
     auto size = rf24_.getDynamicPayloadSize();
     if (size <= 0) {

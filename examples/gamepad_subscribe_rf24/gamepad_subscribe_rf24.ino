@@ -8,7 +8,7 @@ emakefun::GamepadModel g_gamepad_model;
 
 void setup() {
   Serial.begin(115200);
-  g_gamepad_subscriber.Initialize(10, 9, 115, 5, 0x0011000011LL);
+  g_gamepad_subscriber.Initialize(7, 8, 115, 5, 0x0011000011LL);
   g_gamepad_subscriber.AttachModel(&g_gamepad_model);
   Serial.println("setup done");
 }

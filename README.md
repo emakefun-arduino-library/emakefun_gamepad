@@ -12,7 +12,7 @@
 
 ### 示例1：在手柄端打印摇杆和按键值
 
-在手柄上安装好Arduino Nano，请注意安装方向是否正确，将示例程序`examples/gamepad/gamepad.ino`下载到Arduino Nano，内容如下:
+在手柄上安装好Arduino Nano，请注意检查安装方向是否正确，将示例程序`examples/gamepad/gamepad.ino`下载到Arduino Nano，内容如下:
 
 ```c++
 #include <Arduino.h>

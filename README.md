@@ -10,7 +10,7 @@
 
 请下载该库安装到Arduino的library目录，下载链接为<https://github.com/emakefun-arduino-library/emakefun_gamepad/archive/refs/tags/latest.zip>，并且同时需要安装**MPU6050库**:<https://github.com/emakefun-arduino-library/emakefun_mpu6050> 和**RF24库**:<https://www.arduino.cc/reference/en/libraries/rf24/>
 
-### 示例1：在手柄打印摇杆和按键值
+### 示例1：在手柄端打印摇杆和按键值
 
 在手柄上安装好Arduino Nano，请注意安装方向是否正确，将示例程序`examples/gamepad/gamepad.ino`下载到Arduino Nano，内容如下:
 

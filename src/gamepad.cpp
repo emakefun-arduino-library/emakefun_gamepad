@@ -74,7 +74,7 @@ void Gamepad::Tick() {
     }
 
     const GamepadModel::JoystickCoordinate joystick_coordinate{analogRead(kPinRockerCoordinateX) >> 2,
-                                                               analogRead(kPinRockerCoordinateY) >> 2};
+                                                               1023 - analogRead(kPinRockerCoordinateY) >> 2};
 
     if (Diff(model_->GetJoystickCoordinate().x, joystick_coordinate.x) > kMinJoystickCoordinateDiff ||
         Diff(model_->GetJoystickCoordinate().y, joystick_coordinate.y) > kMinJoystickCoordinateDiff ||

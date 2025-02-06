@@ -1,26 +1,15 @@
 #include "packet_parser.h"
 
+#include "checksum.h"
+
 #define START_CODE (0xFB)
 #define PACKET_HEADER_LENGTH (7)
 #define PACKET_MAX_LENGTH (20)
 #define BUFFER_CAPACITY (50)
 
-namespace {
-uint16_t Checksum(const uint8_t* data, const uint8_t length) {
-  uint16_t checksum = 0;
-  for (uint8_t i = 0; i < length; i++) {
-    checksum += data[i];
-  }
-  return checksum;
-}
-}  // namespace
+PacketParser::PacketParser() : ring_buffer_(BUFFER_CAPACITY) {}
 
-PacketParser::PacketParser() : ring_buffer_(BUFFER_CAPACITY) {
-}
-
-size_t PacketParser::AppendData(const uint8_t* data, const uint8_t length) {
-  return ring_buffer_.Write(data, length);
-}
+size_t PacketParser::AppendData(const uint8_t* data, const uint8_t length) { return ring_buffer_.Write(data, length); }
 
 PacketParser::Packet* PacketParser::ReadPacket() {
   if (!Resync()) {
@@ -42,7 +31,7 @@ PacketParser::Packet* PacketParser::ReadPacket() {
   const uint8_t packet_length = header[index++];
   const uint8_t source_type = header[index++];
   const uint8_t source_address = header[index++];
-  const uint16_t header_checksum = Checksum(header, index);
+  const uint16_t header_checksum = emakefun::Checksum(header, index);
   uint16_t checksum = static_cast<uint16_t>(header[index++]) << 8;
   checksum |= header[index++];
 
@@ -58,8 +47,8 @@ PacketParser::Packet* PacketParser::ReadPacket() {
     return nullptr;
   }
 
-  if (checksum != header_checksum + Checksum(data, data_length)) {  // error checksum
-    ring_buffer_.Skip(1);                                           // skip start code;
+  if (checksum != header_checksum + emakefun::Checksum(data, data_length)) {  // error checksum
+    ring_buffer_.Skip(1);                                                     // skip start code;
     delete[] data;
     return nullptr;
   }

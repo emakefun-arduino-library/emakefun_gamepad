@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "gamepad_protocol.h"
+#include "utility/checksum.h"
 
 namespace emakefun {
 void GamepadPublisher::OnButtonState(uint16_t button_state) {
@@ -14,13 +15,8 @@ void GamepadPublisher::OnJoystickCoordinate(const GamepadModel::JoystickCoordina
 }
 
 void GamepadPublisher::OnGravityAcceleration(const GamepadModel::GravityAcceleration& gravity_acceleration) {
-  SendPacket((uint8_t[]){kGravityAcceleration,
-                         gravity_acceleration.x >> 8,
-                         gravity_acceleration.x,
-                         gravity_acceleration.y >> 8,
-                         gravity_acceleration.y,
-                         gravity_acceleration.z >> 8,
-                         gravity_acceleration.z});
+  SendPacket((uint8_t[]){kGravityAcceleration, gravity_acceleration.x >> 8, gravity_acceleration.x, gravity_acceleration.y >> 8,
+                         gravity_acceleration.y, gravity_acceleration.z >> 8, gravity_acceleration.z});
 }
 
 template <size_t length>

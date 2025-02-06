@@ -5,7 +5,7 @@
 
 emakefun::Gamepad g_gamepad;
 emakefun::GamepadModel g_gamepad_model;
-emakefun::GamepadPublisherRf24 g_gamepad_publisher;
+emakefun::GamepadPublisherRf24 g_gamepad_publisher(7, 8);  // ce pin = 7, cs pin = 8
 
 void setup() {
   Serial.begin(115200);
@@ -15,7 +15,7 @@ void setup() {
   g_gamepad.EnableGyroscope(false);
 
   Serial.println("gamepad publisher initialize");
-  g_gamepad_publisher.Initialize(7, 8, 115, 5, 0x0011000011LL);
+  g_gamepad_publisher.Initialize(115, 5, 0x0011000011LL);
   Serial.println("gamepad publisher initialize done");
   g_gamepad.AttachModel(&g_gamepad_model);
   g_gamepad_model.AddObserver(&g_gamepad_publisher);

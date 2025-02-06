@@ -3,7 +3,6 @@
 #include "gamepad.h"
 #include "gamepad_subscriber_rf24.h"
 
-emakefun::GamepadSubscriberRf24 g_gamepad_subscriber;
 emakefun::GamepadModel g_gamepad_model;
 
 #if defined(ARDUINO_AVR_UNO)
@@ -16,6 +15,8 @@ constexpr uint8_t kRf24CsPin = 8;
 #error "unsupported board type"
 #endif
 
+emakefun::GamepadSubscriberRf24 g_gamepad_subscriber(kRf24CePin, kRf24CsPin);
+
 void setup() {
   Serial.begin(115200);
 #if defined(ARDUINO_AVR_UNO)
@@ -27,7 +28,7 @@ void setup() {
   Serial.print(kRf24CePin);
   Serial.print(", cs pin: ");
   Serial.println(kRf24CsPin);
-  g_gamepad_subscriber.Initialize(kRf24CePin, kRf24CsPin, 115, 5, 0x0011000011LL);
+  g_gamepad_subscriber.Initialize(115, 5, 0x0011000011LL);
   g_gamepad_subscriber.AttachModel(&g_gamepad_model);
   Serial.println("setup done");
 }
